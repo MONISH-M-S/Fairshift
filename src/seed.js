@@ -50,6 +50,7 @@ export function seed() {
     industry: 'construction',
     name: 'Meridian Buildcon',
     site: 'Kilpauk Site 2',
+    siteCode: '4821',
   });
 
   const college = insert('orgs', {
@@ -57,6 +58,7 @@ export function seed() {
     industry: 'college',
     name: 'Periyar Institute of Technology',
     site: 'Guindy Campus',
+    siteCode: '7315',
   });
 
   const hospital = insert('orgs', {
@@ -64,6 +66,7 @@ export function seed() {
     industry: 'hospital',
     name: 'Kaveri Hospital',
     site: 'Anna Nagar Campus',
+    siteCode: '9062',
   });
 
   const workers = [
