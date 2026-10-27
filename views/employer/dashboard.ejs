@@ -13,6 +13,15 @@
   </div>
 </section>
 
+<% const emergency = recentCases.find(c => c.isEmergency && effectiveStatus(c) !== 'resolved'); %>
+<% if (emergency) { %>
+  <div class="alert high emergency-banner" role="alert">
+    <strong>🚨 EMERGENCY SAFETY ALERT: <%= emergency.category %></strong>
+    <p class="small"><%= emergency.text %></p>
+    <a href="/admin/cases#case-<%= emergency.id %>" class="button small">Attend to Incident Immediately →</a>
+  </div>
+<% } %>
+
 <!-- KPI Top Grid -->
 <section class="stats kpi-grid">
   <div class="stat">

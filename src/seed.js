@@ -59,6 +59,13 @@ export function seed() {
     site: 'Guindy Campus',
   });
 
+  const hospital = insert('orgs', {
+    id: 'org_hospital',
+    industry: 'hospital',
+    name: 'Kaveri Hospital',
+    site: 'Anna Nagar Campus',
+  });
+
   const workers = [
     { id: 'w_priya', orgId: construction.id, name: 'Priya', role: 'Mason', language: 'ta', hourlyRate: 120 },
     { id: 'w_selvam', orgId: construction.id, name: 'Selvam', role: 'Helper', language: 'ta', hourlyRate: 95 },
@@ -70,6 +77,8 @@ export function seed() {
     { id: 'w_meera', orgId: college.id, name: 'Meera', role: 'Lecturer', language: 'en', hourlyRate: 420 },
     { id: 'w_divya', orgId: college.id, name: 'Divya', role: 'Admin Assistant', language: 'ta', hourlyRate: 160 },
     { id: 'w_suresh', orgId: college.id, name: 'Suresh', role: 'Lab Technician', language: 'ta', hourlyRate: 140 },
+    { id: 'w_kavitha', orgId: hospital.id, name: 'Kavitha', role: 'Staff Nurse', language: 'ta', hourlyRate: 240 },
+    { id: 'w_deepak', orgId: hospital.id, name: 'Deepak', role: 'Ward Attendant', language: 'hi', hourlyRate: 110 },
   ];
 
   for (const worker of workers) insert('workers', worker);
@@ -92,6 +101,15 @@ export function seed() {
     hourlyRate: 0,
     admin: true,
   });
+  insert('workers', {
+    id: 'a_anand',
+    orgId: hospital.id,
+    name: 'Dr. Anand',
+    role: 'Medical Superintendent',
+    language: 'en',
+    hourlyRate: 0,
+    admin: true,
+  });
 
   const byId = Object.fromEntries(workers.map((worker) => [worker.id, worker]));
 
@@ -107,6 +125,8 @@ export function seed() {
     w_meera: [0, 1, 2, 3, 4].map(() => [9, 540, 60]),
     w_divya: [0, 1, 2, 3, 4].map(() => [9, 450, 45]),
     w_suresh: [0, 1, 2, 3, 4].map(() => [8, 480, 45]),
+    w_kavitha: [0, 1, 2, 3].map(() => [7, 720, 60]),
+    w_deepak: [0, 1, 2, 3, 4].map(() => [8, 480, 45]),
   };
 
   for (let offset = -13; offset <= 0; offset += 1) {
@@ -274,6 +294,9 @@ export function seed() {
     ['w_arjun', 'Lab safety officer', 'Institution', 2025],
     ['w_meera', 'Pedagogy certificate', 'NPTEL', 2024],
     ['w_suresh', 'First aid', 'Indian Red Cross', 2023],
+    ['w_kavitha', 'Critical Care Nursing (ICU)', 'Tamil Nadu Nursing Council', 2024],
+    ['w_kavitha', 'Advanced Cardiac Life Support (ACLS)', 'AHA', 2025],
+    ['w_deepak', 'Hospital Infection Control', 'NABH', 2025],
   ];
 
   skills.forEach(([workerId, title, issuer, year], index) => {
@@ -288,7 +311,23 @@ export function seed() {
     });
   });
 
-  return { construction, college };
+  insert('cases', {
+    id: 'c_6',
+    orgId: hospital.id,
+    workerId: 'w_kavitha',
+    anonymous: false,
+    type: 'safety',
+    category: 'Needle-stick / Sharps',
+    text: 'Recapping needle injury in ICU Ward B. Sharp container was overfilled.',
+    lang: 'ta',
+    severity: 'high',
+    status: 'open',
+    createdAt: hoursAgo(6),
+    dueAt: hoursAgo(6 - 24),
+    events: [{ at: hoursAgo(6), status: 'open', note: 'Reported by nurse' }],
+  });
+
+  return { construction, college, hospital };
 }
 
 export const DEMO_PERSONAS = [
@@ -305,6 +344,12 @@ export const DEMO_PERSONAS = [
     detail: 'Lab Assistant · Periyar Institute · English',
   },
   {
+    id: 'w_kavitha',
+    role: 'worker',
+    label: 'Kavitha',
+    detail: 'Staff Nurse · Kaveri Hospital · Tamil',
+  },
+  {
     id: 'a_ravi',
     role: 'admin',
     label: 'Ravi',
@@ -315,6 +360,12 @@ export const DEMO_PERSONAS = [
     role: 'admin',
     label: 'Lakshmi',
     detail: 'Principal · Periyar Institute',
+  },
+  {
+    id: 'a_anand',
+    role: 'admin',
+    label: 'Dr. Anand',
+    detail: 'Medical Superintendent · Kaveri Hospital',
   },
 ];
 

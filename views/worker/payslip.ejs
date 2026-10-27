@@ -1,25 +1,48 @@
 <%- include('../partials/head', { title: title }) %>
 
-<section class="hello">
+<section class="hello no-print">
   <div class="hello-header">
     <div>
       <p class="eyebrow"><%= org.name %> · <%= payslip.periodLabel %></p>
       <h1><%= t('payslip.title') %></h1>
       <p class="muted"><%= t('payslip.subtitle') %></p>
     </div>
+    <div class="action-buttons">
+      <button type="button" class="button ghost small tts-btn"
+              data-text="<%= t('payslip.title') %> <%= worker.name %>. <%= t('payslip.gross') %>: <%= payslip.gross %> rupees. <%= t('payslip.deductions') %>: <%= payslip.deductionTotal %> rupees. <%= t('payslip.net') %>: <%= payslip.net %> rupees."
+              title="Listen to wage calculation">
+        🔊 <%= t('common.listen') %>
+      </button>
+      <button type="button" class="button primary small print-btn" onclick="window.print();">
+        🖨️ <%= t('payslip.print') %>
+      </button>
+    </div>
   </div>
 </section>
 
 <% if (notice === 'disputed') { %>
-  <p class="notice warning" role="status"><%= t('notice.disputed') %></p>
+  <p class="notice warning no-print" role="status"><%= t('notice.disputed') %></p>
 <% } %>
 
 <% if (payslip.disputed && payslip.disputed.length > 0) { %>
-  <div class="alert medium">
+  <div class="alert medium no-print">
     <p><strong><%= t('payslip.disputedNotice') %></strong></p>
     <p class="muted"><%= payslip.disputed.length %> shift(s) flagged for review will not be finalized until approved by your supervisor.</p>
   </div>
 <% } %>
+
+<!-- Print-Only Official Certificate Header -->
+<div class="print-only official-certificate-header">
+  <div class="cert-brand">
+    <h2><%= org.name %></h2>
+    <p><%= org.site %> · <%= industry.name.en %></p>
+    <p class="cert-meta">Official Wage & Compliance Certificate · Generated <%= new Date().toLocaleDateString('en-IN') %></p>
+  </div>
+  <div class="cert-worker-box">
+    <strong>Employee: <%= worker.name %></strong> (ID: <%= worker.id %>)<br>
+    Role: <%= worker.role %> · Pay Period: <%= payslip.periodLabel %>
+  </div>
+</div>
 
 <section class="stats">
   <div class="stat">
@@ -82,6 +105,18 @@
       </tbody>
     </table>
   </div>
+
+  <!-- Statutory Seal in Print -->
+  <div class="print-only cert-seal-row">
+    <div class="seal-box">
+      <div class="seal-badge">✔ SDG 8 COMPLIANT</div>
+      <p class="small muted">Verified FairWage Calculation</p>
+    </div>
+    <div class="signature-line">
+      <div class="line"></div>
+      <p class="small">Employer / Authorized Signatory</p>
+    </div>
+  </div>
 </section>
 
 <section class="panel">
@@ -113,7 +148,7 @@
             </span>
           </div>
 
-          <div class="shift-actions">
+          <div class="shift-actions no-print">
             <% if (shift.end && !shift.disputed) { %>
               <form method="post" action="/w/payslip/dispute" class="inline">
                 <input type="hidden" name="shiftId" value="<%= shift.id %>">

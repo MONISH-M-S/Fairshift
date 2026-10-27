@@ -35,6 +35,20 @@ export default {
   'common.actions': 'कार्रवाई',
   'common.date': 'तारीख',
   'common.time': 'समय',
+  'common.listen': 'सुनें',
+
+  'advisory.heatTitle': 'अत्यधिक गर्मी एवं जलपान चेतावनी',
+  'advisory.heatHint': 'कार्यस्थल पर अनिवार्य 15 मिनट का छायादार आराम और पानी का ब्रेक लागू है।',
+  'advisory.waterBreakDue': 'पानी का ब्रेक समय',
+
+  'sos.cardTitle': 'आपातकालीन खतरा SOS बटन',
+  'sos.cardHint': 'गंभीर चोट, दुर्घटना या संरचना गिरने जैसी आपात स्थिति के लिए तुरंत अलर्ट भेजें।',
+  'sos.confirm': 'क्या आप तुरंत आपातकालीन प्रतिक्रिया अलार्म भेजना चाहते हैं?',
+  'sos.buttonText': '🚨 आपातकालीन SOS भेजें',
+  'sos.triggeredNotice': 'आपातकालीन अलार्म सक्रिय',
+  'sos.triggeredHint': 'सुपरवाइज़र और आपातकालीन कर्मियों को सूचित कर दिया गया है। सुरक्षित स्थान पर रहें।',
+
+  'payslip.print': 'वेतन प्रमाण पत्र प्रिंट करें',
 
   'worker.greeting': 'स्वागत है',
   'worker.statusCheckedIn': 'आप अभी काम पर हैं (चेक-इन)',

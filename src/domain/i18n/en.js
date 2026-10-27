@@ -35,6 +35,20 @@ export default {
   'common.actions': 'Actions',
   'common.date': 'Date',
   'common.time': 'Time',
+  'common.listen': 'Listen',
+
+  'advisory.heatTitle': 'Extreme Heat & Hydration Alert',
+  'advisory.heatHint': 'Site conditions require mandatory 15 min hydration and shaded rest interval.',
+  'advisory.waterBreakDue': 'Hydration Break Due',
+
+  'sos.cardTitle': 'Immediate Hazard & Emergency SOS',
+  'sos.cardHint': 'For active injury, machinery crush, structural collapse, or medical emergency.',
+  'sos.confirm': 'Trigger immediate site-wide emergency response?',
+  'sos.buttonText': '🚨 BROADCAST EMERGENCY SOS',
+  'sos.triggeredNotice': 'EMERGENCY ALARM ACTIVATED',
+  'sos.triggeredHint': 'Supervisors and on-site responders have been alerted. Stand in a safe area.',
+
+  'payslip.print': 'Print Wage Certificate',
 
   'worker.greeting': 'Welcome back',
   'worker.statusCheckedIn': 'You are currently clocked in',

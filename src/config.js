@@ -55,6 +55,22 @@ export const INDUSTRIES = {
     hazards: ['Laboratory safety', 'Harassment', 'Fire exit blocked', 'Electrical', 'Ergonomics'],
     deductions: [{ key: 'pf', label: 'Provident fund', percent: 12 }],
   },
+  hospital: {
+    id: 'hospital',
+    name: { en: 'Hospital', hi: 'अस्पताल', ta: 'மருத்துவமனை' },
+    workerLabel: { en: 'Nurse / Staff', hi: 'नर्स / कर्मचारी', ta: 'செவிலியர் / ஊழியர்' },
+    siteLabel: { en: 'Ward / Campus', hi: 'वार्ड / परिसर', ta: 'வார்டு / வளாகம்' },
+    dailyThresholdMinutes: 480,
+    overtimeMultiplier: 1.5,
+    weeklyHourCap: 44,
+    minRestGapHours: 12,
+    maxConsecutiveDays: 5,
+    hazards: ['Needle-stick / Sharps', 'Biohazard / Infection', 'Radiation exposure', 'Physical assault', 'Chemical sterilants'],
+    deductions: [
+      { key: 'pf', label: 'Provident fund', percent: 12 },
+      { key: 'esi', label: 'ESI Medical Cover', percent: 1.75 },
+    ],
+  },
 };
 
 export const DEFAULT_INDUSTRY = 'construction';

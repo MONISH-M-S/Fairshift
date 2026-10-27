@@ -96,3 +96,17 @@ test('Employer routes render successfully for college admin session', async () =
     assert.ok(res.body.includes('FairShift'), `Expected body content for ${path}`);
   }
 });
+
+test('Hospital industry routes render successfully for hospital admin and nurse', async () => {
+  const adminCookie = sessionCookie({ role: 'admin', workerId: 'a_anand', orgId: 'org_hospital' });
+  for (const path of ['/admin', '/admin/cases', '/admin/workers/w_kavitha']) {
+    const res = await executeRoute(path, adminCookie);
+    assert.equal(res.statusCode, 200, `Expected 200 for ${path}, got ${res.statusCode}`);
+    assert.ok(res.body.includes('FairShift'));
+  }
+
+  const nurseCookie = sessionCookie({ role: 'worker', workerId: 'w_kavitha', orgId: 'org_hospital' });
+  const workerRes = await executeRoute('/w', nurseCookie);
+  assert.equal(workerRes.statusCode, 200);
+  assert.ok(workerRes.body.includes('Kavitha'));
+});

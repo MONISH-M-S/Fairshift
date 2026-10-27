@@ -1,11 +1,30 @@
 <%- include('../partials/head', { title: title }) %>
 
 <section class="hello">
-  <p class="eyebrow"><%= industry.name[locale] || industry.name.en %> · <%= org.site %></p>
-  <h1><%= t('worker.greeting') %>, <%= worker.name %></h1>
-  <p class="muted"><%= worker.role %> · <%= org.name %></p>
+  <div class="hello-header">
+    <div>
+      <p class="eyebrow"><%= industry.name[locale] || industry.name.en %> · <%= org.site %></p>
+      <h1><%= t('worker.greeting') %>, <%= worker.name %></h1>
+      <p class="muted"><%= worker.role %> · <%= org.name %></p>
+    </div>
+    <div class="audio-assist">
+      <button type="button" class="button ghost small tts-btn"
+              data-text="<%= t('worker.greeting') %>, <%= worker.name %>. <%= active ? t('worker.statusCheckedIn') : t('worker.statusOff') %>. <%= t('common.week') %>: <%= fmtDuration(weeklyMinutes) %>. <%= t('worker.weekOvertime') %>: <%= fmtDuration(weekly.overtimeMinutes) %>."
+              title="Listen to this page">
+        🔊 <%= t('common.listen') %>
+      </button>
+    </div>
+  </div>
 </section>
 
+<% if (typeof notice !== 'undefined' && notice === 'sosTriggered') { %>
+  <div class="alert high" role="alert">
+    <strong>🚨 <%= t('sos.triggeredNotice') %></strong>
+    <p class="small"><%= t('sos.triggeredHint') %></p>
+  </div>
+<% } %>
+
+<!-- Live Attendance Section -->
 <section class="panel status <%= active ? 'is-on' : '' %>">
   <% if (active) { %>
     <p class="status-label"><%= t('worker.statusCheckedIn') %></p>
@@ -22,6 +41,20 @@
     <a class="button primary wide" href="/w/checkin"><%= t('worker.checkInNow') %></a>
   <% } %>
 </section>
+
+<!-- Occupational Safety & Heat Stress Advisor -->
+<div class="panel advisory-panel">
+  <div class="advisory-content">
+    <div class="advisory-icon">☀️</div>
+    <div>
+      <strong><%= t('advisory.heatTitle') %></strong>
+      <p class="small muted"><%= t('advisory.heatHint') %></p>
+    </div>
+  </div>
+  <div class="advisory-pill">
+    <span class="badge warning"><%= t('advisory.waterBreakDue') %></span>
+  </div>
+</div>
 
 <section class="stats">
   <div class="stat">
@@ -43,7 +76,14 @@
 
 <% if (risk.level !== 'low') { %>
   <section class="panel alert <%= risk.level %>">
-    <h2><%= t('worker.fatigueTitle') %></h2>
+    <div class="panel-header">
+      <h2><%= t('worker.fatigueTitle') %></h2>
+      <button type="button" class="button ghost small tts-btn"
+              data-text="<%= t('worker.fatigueTitle') %>. <%= t('fatigue.' + risk.level) %>."
+              title="Listen to fatigue alert">
+        🔊
+      </button>
+    </div>
     <p class="badge-row">
       <span class="badge <%= risk.level %>"><%= t('fatigue.' + risk.level) %></span>
       <span class="muted"><%= t('worker.fatigueScore', { score: risk.score }) %></span>
@@ -85,6 +125,20 @@
       <span><%= t('worker.quickSkills') %></span>
     </a>
   </div>
+</section>
+
+<!-- Instant Emergency SOS Button -->
+<section class="sos-card">
+  <div class="sos-info">
+    <strong>🚨 <%= t('sos.cardTitle') %></strong>
+    <p class="small muted"><%= t('sos.cardHint') %></p>
+  </div>
+  <form method="post" action="/w/sos" class="sos-form" onsubmit="return confirm('<%= t('sos.confirm') %>');">
+    <input type="hidden" name="emergencyType" value="Immediate Hazard / Medical Emergency">
+    <button type="submit" class="button sos-button">
+      <%= t('sos.buttonText') %>
+    </button>
+  </form>
 </section>
 
 <%- include('../partials/foot') %>

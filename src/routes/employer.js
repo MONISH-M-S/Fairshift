@@ -160,4 +160,26 @@ router.get('/admin/workers/:id', (req, res) => {
   });
 });
 
+router.post('/admin/shifts/:id/settle', (req, res) => {
+  const ctx = context(req);
+  if (!ctx) return res.redirect('/login');
+
+  const shift = byId('shifts', req.params.id);
+  if (!shift || shift.orgId !== ctx.org.id) {
+    return res.status(404).render('error', { title: 'Shift not found' });
+  }
+
+  const action = String(req.body.action || 'approve');
+  if (action === 'approve') {
+    shift.disputed = false;
+    shift.settledBy = req.session.workerId;
+    shift.settledAt = new Date().toISOString();
+  } else {
+    shift.disputed = false;
+  }
+
+  const back = String(req.body.back || `/admin/workers/${shift.workerId}`);
+  res.redirect(back.startsWith('/admin') ? back : '/admin');
+});
+
 export default router;

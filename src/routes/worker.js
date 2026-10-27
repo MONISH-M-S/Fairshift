@@ -273,4 +273,28 @@ router.post('/w/skills', (req, res) => {
   res.redirect('/w/skills?ok=added');
 });
 
+router.post('/w/sos', async (req, res) => {
+  const ctx = context(req);
+  if (!ctx) return res.redirect('/login');
+
+  const emergencyType = String(req.body.emergencyType || 'Immediate Danger');
+  const details = String(req.body.details || 'Emergency SOS alarm broadcast by worker on site. Immediate supervisor response needed.').slice(0, 500);
+
+  const item = createCase({
+    orgId: ctx.org.id,
+    workerId: ctx.worker.id,
+    anonymous: false,
+    type: 'safety',
+    category: `EMERGENCY: ${emergencyType}`,
+    text: details,
+    lang: req.locale,
+    severity: 'high',
+  });
+  item.isEmergency = true;
+  item.theme = 'safety';
+  insert('cases', item);
+
+  res.redirect('/w?ok=sosTriggered');
+});
+
 export default router;

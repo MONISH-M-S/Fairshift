@@ -131,7 +131,15 @@
               <td><span class="badge neutral"><%= s.source %></span></td>
               <td class="num">
                 <% if (s.disputed) { %>
-                  <span class="badge warning">Disputed</span>
+                  <div class="dispute-actions">
+                    <span class="badge warning">Disputed</span>
+                    <form method="post" action="/admin/shifts/<%= s.id %>/settle" class="inline">
+                      <input type="hidden" name="back" value="/admin/workers/<%= worker.id %>">
+                      <button type="submit" name="action" value="approve" class="button small ghost text-success" title="Approve hours and clear dispute">
+                        ✔ Settle
+                      </button>
+                    </form>
+                  </div>
                 <% } else if (!s.end) { %>
                   <span class="badge info">Active</span>
                 <% } else { %>

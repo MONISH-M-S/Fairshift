@@ -64,7 +64,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 2. Dispute Confirmation
+  // 2. Audio Narration / Text-to-Speech (TTS) for low-literacy workers
+  const ttsButtons = document.querySelectorAll('.tts-btn');
+  if ('speechSynthesis' in window) {
+    ttsButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const text = btn.getAttribute('data-text');
+        if (!text) return;
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        const docLang = document.documentElement.lang || 'en';
+        utterance.lang = docLang === 'ta' ? 'ta-IN' : (docLang === 'hi' ? 'hi-IN' : 'en-IN');
+        utterance.rate = 0.95;
+        window.speechSynthesis.speak(utterance);
+      });
+    });
+  } else {
+    ttsButtons.forEach((btn) => (btn.style.display = 'none'));
+  }
+
+  // 3. Dispute Confirmation
   const disputeForms = document.querySelectorAll('form[action="/w/payslip/dispute"]');
   disputeForms.forEach((form) => {
     form.addEventListener('submit', (e) => {
