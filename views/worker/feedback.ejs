@@ -1,0 +1,60 @@
+<%- include('../partials/head', { title: title }) %>
+
+<section class="hello">
+  <p class="eyebrow"><%= org.name %> · <%= org.site %></p>
+  <h1><%= t('feedback.title') %></h1>
+  <p class="muted"><%= t('feedback.subtitle') %></p>
+</section>
+
+<% if (notice === 'thanks') { %>
+  <p class="notice success" role="status"><%= t('notice.thanks') %></p>
+<% } else if (notice === 'tooShort') { %>
+  <p class="notice warning" role="status"><%= t('notice.tooShort') %></p>
+<% } %>
+
+<section class="panel">
+  <h2><%= t('feedback.prompt') %></h2>
+  <p class="muted"><%= t('feedback.promptHint') %></p>
+
+  <form method="post" action="/w/feedback" class="stack feedback-form">
+    <div class="form-group">
+      <textarea name="text" rows="4" maxlength="1200" required
+                placeholder="Share your thoughts about working conditions, safety, management, food, transport..."></textarea>
+    </div>
+
+    <div class="checkbox-row">
+      <label class="checkbox-label">
+        <input type="checkbox" name="anonymous" value="on" checked>
+        <span><%= t('feedback.anonymous') %></span>
+      </label>
+    </div>
+
+    <button type="submit" class="button primary wide"><%= t('feedback.submit') %></button>
+  </form>
+</section>
+
+<section class="panel">
+  <h2><%= t('feedback.myHistory') %></h2>
+  <% if (!mine || mine.length === 0) { %>
+    <p class="muted"><%= t('feedback.noFeedback') %></p>
+  <% } else { %>
+    <div class="feedback-list">
+      <% mine.forEach(function (f) { %>
+        <article class="card feedback-card">
+          <div class="feedback-tags">
+            <span class="badge info"><%= f.theme %></span>
+            <span class="badge <%= f.sentiment === 'positive' ? 'success' : (f.sentiment === 'negative' ? 'danger' : 'neutral') %>">
+              <%= f.sentiment %>
+            </span>
+            <span class="muted small">
+              <%= new Date(f.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) %>
+            </span>
+          </div>
+          <p class="feedback-text"><%= f.text %></p>
+        </article>
+      <% }); %>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../partials/foot') %>

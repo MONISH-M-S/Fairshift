@@ -1,0 +1,131 @@
+<%- include('../partials/head', { title: title }) %>
+
+<section class="hello admin-hello">
+  <div class="hello-header">
+    <div>
+      <p class="eyebrow"><%= org.name %> · <%= org.site %></p>
+      <h1><%= t('admin.allCasesTitle') %></h1>
+      <p class="muted">Track worker grievances and workplace safety issues with guaranteed response SLA windows.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Filter Navigation Tabs -->
+<div class="filter-tabs" role="tablist" aria-label="Case filter">
+  <a href="/admin/cases?filter=open"
+     class="filter-tab <%= filter === 'open' ? 'is-active' : '' %>"
+     role="tab" <%= filter === 'open' ? 'aria-selected="true"' : '' %>>
+    <%= t('admin.filterOpen') %> <span class="tab-count"><%= counts.open %></span>
+  </a>
+  <a href="/admin/cases?filter=overdue"
+     class="filter-tab <%= filter === 'overdue' ? 'is-active' : '' %>"
+     role="tab" <%= filter === 'overdue' ? 'aria-selected="true"' : '' %>>
+    <%= t('admin.filterOverdue') %> <span class="tab-count danger"><%= counts.overdue %></span>
+  </a>
+  <a href="/admin/cases?filter=resolved"
+     class="filter-tab <%= filter === 'resolved' ? 'is-active' : '' %>"
+     role="tab" <%= filter === 'resolved' ? 'aria-selected="true"' : '' %>>
+    <%= t('admin.filterResolved') %> <span class="tab-count"><%= counts.resolved %></span>
+  </a>
+  <a href="/admin/cases?filter=all"
+     class="filter-tab <%= filter === 'all' ? 'is-active' : '' %>"
+     role="tab" <%= filter === 'all' ? 'aria-selected="true"' : '' %>>
+    <%= t('admin.filterAll') %> <span class="tab-count"><%= counts.total %></span>
+  </a>
+</div>
+
+<section class="panel">
+  <% if (!rows || rows.length === 0) { %>
+    <p class="muted">No cases match the selected filter (<%= filter %>).</p>
+  <% } else { %>
+    <div class="case-admin-list">
+      <% rows.forEach(function (c) { 
+           const status = effectiveStatus(c);
+           const rem = hoursRemaining(c);
+      %>
+        <article class="case-admin-card status-<%= status %>" id="case-<%= c.id %>">
+          <div class="case-admin-top">
+            <div class="case-title-area">
+              <span class="badge <%= c.type === 'safety' ? 'danger' : 'info' %>"><%= c.type.toUpperCase() %></span>
+              <span class="badge <%= c.severity === 'high' ? 'danger' : (c.severity === 'medium' ? 'warning' : 'neutral') %>">
+                <%= c.severity.toUpperCase() %>
+              </span>
+              <h3><%= c.category %></h3>
+            </div>
+            <div class="case-status-badge">
+              <span class="badge <%= status === 'overdue' ? 'danger' : (status === 'resolved' ? 'success' : 'warning') %>">
+                <%= t('common.' + status) %>
+              </span>
+            </div>
+          </div>
+
+          <div class="case-details">
+            <p class="case-text"><%= c.text %></p>
+            <% if (c.theme) { %>
+              <div class="muted small">Detected theme: <strong><%= c.theme %></strong></div>
+            <% } %>
+          </div>
+
+          <div class="case-meta-row">
+            <span class="muted small">
+              Reporter: <strong><%= c.anonymous ? t('common.anonymous') : (c.workerId || 'Worker') %></strong> · 
+              Language: <%= (c.lang || 'en').toUpperCase() %> · 
+              Reported: <%= new Date(c.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) %>
+            </span>
+
+            <% if (status !== 'resolved') { %>
+              <span class="sla-timer <%= rem < 0 ? 'text-danger font-bold' : 'text-muted' %>">
+                <% if (rem < 0) { %>
+                  ⚠️ OVERDUE by <%= Math.abs(rem) %> hours
+                <% } else { %>
+                  ⏳ <%= rem %> hours remaining until SLA breach
+                <% } %>
+              </span>
+            <% } %>
+          </div>
+
+          <!-- Timeline -->
+          <div class="case-history">
+            <h4>Timeline & Actions:</h4>
+            <ul class="timeline">
+              <% (c.events || []).forEach(function (ev) { %>
+                <li>
+                  <span class="ev-time"><%= new Date(ev.at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) %>:</span>
+                  <strong><%= t('common.' + ev.status) %></strong>
+                  <% if (ev.note) { %>
+                    <span class="ev-note">— <%= ev.note %></span>
+                  <% } %>
+                </li>
+              <% }); %>
+            </ul>
+          </div>
+
+          <!-- Status Transition Form -->
+          <% if (c.status !== 'resolved') { %>
+            <div class="case-action-box">
+              <form method="post" action="/admin/cases/<%= c.id %>/status" class="action-form">
+                <input type="hidden" name="back" value="/admin/cases?filter=<%= filter %>">
+                <div class="action-inputs">
+                  <input type="text" name="note" maxlength="200"
+                         placeholder="<%= t('admin.notePlaceholder') %>" required>
+                  <div class="action-buttons">
+                    <% if (c.status === 'open') { %>
+                      <button type="submit" name="status" value="acknowledged" class="button ghost small">
+                        <%= t('admin.markAcknowledged') %>
+                      </button>
+                    <% } %>
+                    <button type="submit" name="status" value="resolved" class="button primary small">
+                      <%= t('admin.markResolved') %>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          <% } %>
+        </article>
+      <% }); %>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../partials/foot') %>

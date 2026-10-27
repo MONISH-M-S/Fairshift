@@ -17,7 +17,7 @@ import { buildPayslip } from '../domain/payroll.js';
 
 const router = express.Router();
 
-router.use(requireAdmin);
+router.use('/admin', requireAdmin);
 
 function context(req) {
   const org = byId('orgs', req.session.orgId);

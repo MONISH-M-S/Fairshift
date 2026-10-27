@@ -1,0 +1,69 @@
+<%- include('../partials/head', { title: title }) %>
+
+<section class="hello">
+  <p class="eyebrow"><%= worker.role %> · <%= org.name %></p>
+  <h1><%= t('skills.title') %></h1>
+  <p class="muted"><%= t('skills.subtitle') %></p>
+</section>
+
+<% if (notice === 'added') { %>
+  <p class="notice success" role="status"><%= t('notice.added') %></p>
+<% } else if (notice === 'tooShort') { %>
+  <p class="notice warning" role="status"><%= t('notice.tooShort') %></p>
+<% } %>
+
+<section class="panel">
+  <h2><%= t('skills.mySkills') %></h2>
+  <% if (!skills || skills.length === 0) { %>
+    <p class="muted">No certifications recorded yet. Add your credentials below to build your portable record.</p>
+  <% } else { %>
+    <div class="skills-grid">
+      <% skills.forEach(function (sk) { %>
+        <article class="skill-card <%= sk.verified ? 'is-verified' : '' %>">
+          <div class="skill-icon">
+            <%= sk.verified ? '🛡️' : '📜' %>
+          </div>
+          <div class="skill-info">
+            <h3 class="skill-title"><%= sk.title %></h3>
+            <p class="skill-issuer muted"><%= sk.issuer %> · <%= sk.year %></p>
+            <div class="skill-badge-row">
+              <% if (sk.verified) { %>
+                <span class="badge success">✔ <%= t('skills.verified') %></span>
+              <% } else { %>
+                <span class="badge neutral"><%= t('skills.selfReported') %></span>
+              <% } %>
+            </div>
+          </div>
+        </article>
+      <% }); %>
+    </div>
+  <% } %>
+</section>
+
+<section class="panel">
+  <h2><%= t('skills.add') %></h2>
+  <form method="post" action="/w/skills" class="stack skill-form">
+    <div class="form-group">
+      <label for="skillTitle" class="label-bold"><%= t('skills.skillTitle') %></label>
+      <input id="skillTitle" name="title" required minlength="3" maxlength="120"
+             placeholder="<%= t('skills.skillPlaceholder') %>">
+    </div>
+
+    <div class="split-row">
+      <div class="form-group flex-2">
+        <label for="issuer" class="label-bold"><%= t('skills.issuer') %></label>
+        <input id="issuer" name="issuer" maxlength="120"
+               placeholder="<%= t('skills.issuerPlaceholder') %>">
+      </div>
+      <div class="form-group flex-1">
+        <label for="year" class="label-bold"><%= t('skills.year') %></label>
+        <input id="year" name="year" type="number" min="1980" max="<%= new Date().getFullYear() + 1 %>"
+               value="<%= new Date().getFullYear() %>">
+      </div>
+    </div>
+
+    <button type="submit" class="button primary wide"><%= t('skills.submit') %></button>
+  </form>
+</section>
+
+<%- include('../partials/foot') %>

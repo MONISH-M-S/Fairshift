@@ -18,7 +18,7 @@ import { analyseText } from '../ai/themes.js';
 
 const router = express.Router();
 
-router.use(requireWorker);
+router.use('/w', requireWorker);
 
 function context(req) {
   const worker = byId('workers', req.session.workerId);

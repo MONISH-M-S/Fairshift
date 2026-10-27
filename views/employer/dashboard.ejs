@@ -1,0 +1,217 @@
+<%- include('../partials/head', { title: title }) %>
+
+<section class="hello admin-hello">
+  <div class="hello-header">
+    <div>
+      <p class="eyebrow"><%= industry.name[locale] || industry.name.en %> · <%= org.site %></p>
+      <h1><%= org.name %> — <%= t('admin.dashboardTitle') %></h1>
+      <p class="muted">Live operational intelligence on attendance, safety, overtime and worker wellbeing.</p>
+    </div>
+    <div class="header-badges">
+      <span class="pill-badge live-indicator">● LIVE SITE CODE: <strong><%= org.siteCode %></strong></span>
+    </div>
+  </div>
+</section>
+
+<!-- KPI Top Grid -->
+<section class="stats kpi-grid">
+  <div class="stat">
+    <span class="stat-label"><%= t('admin.onSite') %></span>
+    <strong class="stat-value"><%= onSiteNow %> <span class="stat-total">/ <%= headcount %></span></strong>
+    <span class="stat-hint"><%= Math.round((onSiteNow / (headcount || 1)) * 100) %>% workforce present</span>
+  </div>
+
+  <div class="stat">
+    <span class="stat-label"><%= t('admin.openCases') %></span>
+    <strong class="stat-value"><%= stats.open %></strong>
+    <span class="stat-hint">
+      <% if (stats.overdue > 0) { %>
+        <span class="text-danger">⚠️ <%= t('admin.overdue', { count: stats.overdue }) %></span> · 
+      <% } %>
+      <span class="text-warning"><%= t('admin.safetyCases', { count: stats.safetyOpen }) %></span>
+    </span>
+  </div>
+
+  <div class="stat">
+    <span class="stat-label"><%= t('admin.disputes') %></span>
+    <strong class="stat-value <%= disputed > 0 ? 'text-warning' : '' %>"><%= disputed %></strong>
+    <span class="stat-hint">Active shift audit disputes</span>
+  </div>
+
+  <div class="stat">
+    <span class="stat-label"><%= t('admin.weekHours') %></span>
+    <strong class="stat-value"><%= fmtDuration(weekTotals.workedMinuteTotal) %></strong>
+    <span class="stat-hint"><%= t('admin.overtime') %>: <%= fmtDuration(weekTotals.overtimeMinutes) %> (<%= industry.overtimeMultiplier %>×)</span>
+  </div>
+</section>
+
+<!-- 7-Day Attendance and Hours Trend -->
+<section class="panel">
+  <div class="panel-header">
+    <h2><%= t('admin.trendTitle') %></h2>
+    <span class="muted small">Workers present vs total hours clocked</span>
+  </div>
+
+  <div class="trend-chart-container">
+    <div class="trend-bars">
+      <% trend.forEach(function (day) { 
+           const barHeight = Math.max(12, Math.round((day.present / maxPresent) * 100));
+      %>
+        <div class="trend-col">
+          <div class="bar-val-top"><%= day.present %></div>
+          <div class="bar-track">
+            <div class="bar-fill" style="height: <%= barHeight %>%;" title="<%= day.present %> present (<%= fmtDuration(day.minutes) %>)"></div>
+          </div>
+          <div class="bar-label"><strong><%= day.label %></strong></div>
+          <div class="bar-sub muted small"><%= fmtDuration(day.minutes) %></div>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+</section>
+
+<!-- Worker Fatigue & Retention Risk Table -->
+<section class="panel">
+  <div class="panel-header">
+    <div>
+      <h2><%= t('admin.riskTitle') %></h2>
+      <p class="muted"><%= t('admin.riskHint') %></p>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th scope="col"><%= t('admin.worker') %></th>
+          <th scope="col"><%= t('admin.weeklyLoad') %></th>
+          <th scope="col"><%= t('admin.fatigueRisk') %></th>
+          <th scope="col"><%= t('admin.leaveRisk') %></th>
+          <th scope="col"><%= t('admin.casesCount') %></th>
+          <th scope="col" class="num"><%= t('common.actions') %></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% rows.forEach(function (row) { %>
+          <tr class="row-risk-<%= row.risk.level %>">
+            <td>
+              <a href="/admin/workers/<%= row.worker.id %>" class="worker-link">
+                <strong><%= row.worker.name %></strong>
+              </a>
+              <div class="muted small"><%= row.worker.role %> · <%= row.worker.language.toUpperCase() %></div>
+            </td>
+            <td>
+              <strong><%= fmtDuration(row.weeklyMinutes) %></strong>
+              <% if (row.weeklyMinutes > industry.weeklyHourCap * 60) { %>
+                <div class="text-danger small">Over cap (<%= industry.weeklyHourCap %>h)</div>
+              <% } %>
+            </td>
+            <td>
+              <span class="badge <%= row.risk.level %>">
+                <%= t('fatigue.' + row.risk.level) %> (<%= row.risk.score %>)
+              </span>
+              <% if (row.risk.flags.length > 0) { %>
+                <div class="muted small"><%= row.risk.flags.map(f => f.code).join(', ') %></div>
+              <% } %>
+            </td>
+            <td>
+              <div class="risk-bar-wrap">
+                <div class="risk-bar-fill <%= row.leaveRisk >= 60 ? 'bg-danger' : (row.leaveRisk >= 30 ? 'bg-warning' : 'bg-success') %>"
+                     style="width: <%= row.leaveRisk %>%;"></div>
+              </div>
+              <span class="small font-mono"><strong><%= row.leaveRisk %>%</strong></span>
+            </td>
+            <td>
+              <% if (row.openCases > 0) { %>
+                <span class="badge danger"><%= row.openCases %> open</span>
+              <% } else { %>
+                <span class="muted">—</span>
+              <% } %>
+            </td>
+            <td class="num">
+              <a href="/admin/workers/<%= row.worker.id %>" class="button small ghost">
+                <%= t('admin.profile') %> →
+              </a>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Split Grid: Feedback Themes & Recent Cases -->
+<div class="split">
+  <!-- AI Feedback Themes -->
+  <section class="panel">
+    <div class="panel-header">
+      <h2><%= t('admin.feedbackTitle') %></h2>
+      <span class="muted small">Aggregated from anonymous submissions</span>
+    </div>
+
+    <% if (!themes || themes.length === 0) { %>
+      <p class="muted">No feedback submitted yet.</p>
+    <% } else { %>
+      <ul class="theme-list">
+        <% themes.forEach(function (th) { %>
+          <li class="theme-item">
+            <div class="theme-title-row">
+              <span class="theme-name"><strong><%= th.theme %></strong></span>
+              <span class="theme-counts muted small"><%= th.total %> reports</span>
+            </div>
+            <div class="theme-sentiment-bar">
+              <div class="sent-pos" style="width: <%= Math.round((th.positive / (th.total || 1)) * 100) %>%;" title="Positive: <%= th.positive %>"></div>
+              <div class="sent-neg" style="width: <%= Math.round((th.negative / (th.total || 1)) * 100) %>%;" title="Negative: <%= th.negative %>"></div>
+            </div>
+            <div class="theme-meta small muted">
+              <span><%= t('admin.positive') %>: <%= th.positive %></span>
+              <span><%= t('admin.negative') %>: <%= th.negative %></span>
+            </div>
+          </li>
+        <% }); %>
+      </ul>
+    <% } %>
+  </section>
+
+  <!-- Recent Cases with SLA -->
+  <section class="panel">
+    <div class="panel-header">
+      <h2><%= t('admin.recentCases') %></h2>
+      <a href="/admin/cases" class="button ghost small"><%= t('admin.viewAllCases') %> →</a>
+    </div>
+
+    <% if (!recentCases || recentCases.length === 0) { %>
+      <p class="muted">No active cases.</p>
+    <% } else { %>
+      <div class="case-mini-list">
+        <% recentCases.forEach(function (c) { 
+             const status = effectiveStatus(c);
+             const rem = hoursRemaining(c);
+        %>
+          <article class="case-card mini status-<%= status %>">
+            <div class="case-header">
+              <div>
+                <span class="badge <%= c.type === 'safety' ? 'danger' : 'info' %>"><%= c.type.toUpperCase() %></span>
+                <strong><%= c.category %></strong>
+              </div>
+              <span class="badge <%= status === 'overdue' ? 'danger' : (status === 'resolved' ? 'success' : 'warning') %>">
+                <%= t('common.' + status) %>
+              </span>
+            </div>
+            <p class="case-text small"><%= c.text %></p>
+            <div class="case-meta small">
+              <span class="muted"><%= c.anonymous ? t('common.anonymous') : 'Identified worker' %></span>
+              <% if (status !== 'resolved') { %>
+                <span class="<%= rem < 0 ? 'text-danger font-bold' : 'text-muted' %>">
+                  <%= rem < 0 ? '⚠️ Overdue' : `⏳ ${rem}h left` %>
+                </span>
+              <% } %>
+            </div>
+          </article>
+        <% }); %>
+      </div>
+    <% } %>
+  </section>
+</div>
+
+<%- include('../partials/foot') %>

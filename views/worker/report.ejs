@@ -1,0 +1,136 @@
+<%- include('../partials/head', { title: title }) %>
+
+<section class="hello">
+  <p class="eyebrow"><%= org.name %> · <%= org.site %></p>
+  <h1><%= t('report.title') %></h1>
+  <p class="muted"><%= t('report.subtitle') %></p>
+</section>
+
+<% if (notice === 'submitted') { %>
+  <p class="notice success" role="status"><%= t('notice.submitted') %></p>
+<% } else if (notice === 'tooShort') { %>
+  <p class="notice warning" role="status"><%= t('notice.tooShort') %></p>
+<% } %>
+
+<section class="panel">
+  <h2>File a New Case</h2>
+  <form method="post" action="/w/report" class="stack report-form">
+    <div class="form-group">
+      <label class="label-bold"><%= t('report.type') %></label>
+      <div class="radio-cards">
+        <label class="radio-card">
+          <input type="radio" name="type" value="safety" checked>
+          <div class="radio-content">
+            <strong>⚠️ <%= t('report.typeSafety') %></strong>
+            <span class="muted small">High SLA (24h resolution window)</span>
+          </div>
+        </label>
+        <label class="radio-card">
+          <input type="radio" name="type" value="grievance">
+          <div class="radio-content">
+            <strong>📋 <%= t('report.typeGrievance') %></strong>
+            <span class="muted small">Standard SLA (48-72h resolution window)</span>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="category" class="label-bold"><%= t('report.category') %></label>
+      <input id="category" name="category" list="hazards-list"
+             placeholder="<%= t('report.categoryHint') %>" maxlength="80" required>
+      <datalist id="hazards-list">
+        <% (industry.hazards || []).forEach(function (h) { %>
+          <option value="<%= h %>">
+        <% }); %>
+        <option value="Drinking water">
+        <option value="Overtime not paid">
+        <option value="Restroom hygiene">
+        <option value="Safety equipment / PPE">
+      </datalist>
+    </div>
+
+    <div class="form-group">
+      <div class="label-row">
+        <label for="reportText" class="label-bold"><%= t('report.text') %></label>
+        <button type="button" id="voiceBtn" class="voice-toggle ghost small" aria-label="<%= t('report.voicePrompt') %>">
+          🎙️ <%= t('report.voicePrompt') %>
+        </button>
+      </div>
+      <textarea id="reportText" name="text" rows="4" maxlength="1200" required
+                placeholder="<%= t('report.textHint') %>"></textarea>
+      <p id="voiceStatus" class="help muted"></p>
+    </div>
+
+    <div class="checkbox-row">
+      <label class="checkbox-label">
+        <input type="checkbox" name="anonymous" value="on">
+        <span><%= t('report.anonymous') %></span>
+      </label>
+    </div>
+
+    <button type="submit" class="button primary wide"><%= t('report.submit') %></button>
+  </form>
+</section>
+
+<section class="panel">
+  <h2><%= t('report.myReports') %></h2>
+  <% if (!mine || mine.length === 0) { %>
+    <p class="muted"><%= t('report.noReports') %></p>
+  <% } else { %>
+    <div class="case-list">
+      <% mine.forEach(function (c) { 
+           const status = effectiveStatus(c);
+           const rem = hoursRemaining(c);
+      %>
+        <article class="case-card status-<%= status %>">
+          <div class="case-header">
+            <div>
+              <span class="badge <%= c.type === 'safety' ? 'danger' : 'info' %>"><%= c.type.toUpperCase() %></span>
+              <strong><%= c.category %></strong>
+            </div>
+            <span class="badge <%= status === 'overdue' ? 'danger' : (status === 'resolved' ? 'success' : 'warning') %>">
+              <%= t('common.' + status) %>
+            </span>
+          </div>
+
+          <p class="case-body"><%= c.text %></p>
+
+          <div class="case-meta">
+            <span class="muted small">
+              Filed: <%= new Date(c.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) %>
+            </span>
+            <% if (status !== 'resolved') { %>
+              <span class="sla-badge <%= rem < 0 ? 'text-danger' : 'text-muted' %>">
+                <% if (rem < 0) { %>
+                  ⚠️ <%= t('report.overdueAlert') %>
+                <% } else { %>
+                  ⏳ <%= t('report.remaining', { hours: rem }) %>
+                <% } %>
+              </span>
+            <% } %>
+          </div>
+
+          <% if (c.events && c.events.length > 1) { %>
+            <div class="case-events">
+              <span class="events-title">Timeline & Manager Actions:</span>
+              <ul class="timeline">
+                <% c.events.forEach(function (ev) { %>
+                  <li>
+                    <span class="ev-time"><%= new Date(ev.at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) %>:</span>
+                    <span class="ev-status"><strong><%= t('common.' + ev.status) %></strong></span>
+                    <% if (ev.note) { %>
+                      — <span class="ev-note"><%= ev.note %></span>
+                    <% } %>
+                  </li>
+                <% }); %>
+              </ul>
+            </div>
+          <% } %>
+        </article>
+      <% }); %>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../partials/foot') %>

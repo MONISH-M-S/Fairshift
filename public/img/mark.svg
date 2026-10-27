@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <defs>
+    <linearGradient id="fsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#0f3d2e"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Badge -->
+  <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#fsGrad)"/>
+  
+  <!-- Stylized Balanced Scale / Shift Symbol -->
+  <!-- Central Pillar -->
+  <line x1="24" y1="12" x2="24" y2="34" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  <!-- Top Balance Beam -->
+  <line x1="13" y1="18" x2="35" y2="18" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  <!-- Left Pan Support & Pan -->
+  <line x1="14" y1="19" x2="11" y2="26" stroke="#a7f3d0" stroke-width="2"/>
+  <line x1="14" y1="19" x2="17" y2="26" stroke="#a7f3d0" stroke-width="2"/>
+  <path d="M9 26 Q14 30 19 26 Z" fill="#ffffff"/>
+  <!-- Right Pan Support & Pan -->
+  <line x1="34" y1="19" x2="31" y2="26" stroke="#a7f3d0" stroke-width="2"/>
+  <line x1="34" y1="19" x2="37" y2="26" stroke="#a7f3d0" stroke-width="2"/>
+  <path d="M29 26 Q34 30 39 26 Z" fill="#ffffff"/>
+  <!-- Base Pedestal -->
+  <rect x="18" y="34" width="12" height="3" rx="1.5" fill="#ffffff"/>
+  <!-- Central Pivot Star/Dot -->
+  <circle cx="24" cy="18" r="3" fill="#34d399"/>
+</svg>

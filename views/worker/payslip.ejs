@@ -1,0 +1,132 @@
+<%- include('../partials/head', { title: title }) %>
+
+<section class="hello">
+  <div class="hello-header">
+    <div>
+      <p class="eyebrow"><%= org.name %> · <%= payslip.periodLabel %></p>
+      <h1><%= t('payslip.title') %></h1>
+      <p class="muted"><%= t('payslip.subtitle') %></p>
+    </div>
+  </div>
+</section>
+
+<% if (notice === 'disputed') { %>
+  <p class="notice warning" role="status"><%= t('notice.disputed') %></p>
+<% } %>
+
+<% if (payslip.disputed && payslip.disputed.length > 0) { %>
+  <div class="alert medium">
+    <p><strong><%= t('payslip.disputedNotice') %></strong></p>
+    <p class="muted"><%= payslip.disputed.length %> shift(s) flagged for review will not be finalized until approved by your supervisor.</p>
+  </div>
+<% } %>
+
+<section class="stats">
+  <div class="stat">
+    <span class="stat-label"><%= t('payslip.rate') %></span>
+    <strong class="stat-value"><%= fmtMoney(payslip.baseRate) %>/h</strong>
+    <span class="stat-hint"><%= t('payslip.otRate') %>: <%= fmtMoney(payslip.overtimeRate) %>/h (<%= payslip.overtimeMultiplier %>×)</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label"><%= t('payslip.regularHours') %></span>
+    <strong class="stat-value"><%= formatDuration(payslip.regularMinutes) %></strong>
+    <span class="stat-hint"><%= t('payslip.overtimeHours') %>: <%= formatDuration(payslip.overtimeMinutes) %></span>
+  </div>
+  <div class="stat highlight">
+    <span class="stat-label"><%= t('payslip.net') %></span>
+    <strong class="stat-value"><%= fmtMoney(payslip.net) %></strong>
+    <span class="stat-hint"><%= t('payslip.gross') %>: <%= fmtMoney(payslip.gross) %></span>
+  </div>
+</section>
+
+<section class="panel">
+  <h2><%= t('payslip.lineItems') %></h2>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th scope="col">Description</th>
+          <th scope="col">Hours</th>
+          <th scope="col">Rate</th>
+          <th scope="col" class="num">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% payslip.lines.forEach(function (line) { %>
+          <tr>
+            <td>
+              <strong><%= line.key === 'regular' ? t('payslip.regularHours') : t('payslip.overtimeHours') %></strong>
+              <div class="muted small">Computed from <%= line.shiftIds.length %> verified shift(s)</div>
+            </td>
+            <td><%= formatDuration(line.minutes) %></td>
+            <td><%= fmtMoney(line.rate) %>/h</td>
+            <td class="num font-mono"><strong><%= fmtMoney(line.amount) %></strong></td>
+          </tr>
+        <% }); %>
+        <tr class="summary-row">
+          <td colspan="3"><strong><%= t('payslip.gross') %></strong></td>
+          <td class="num font-mono"><strong><%= fmtMoney(payslip.gross) %></strong></td>
+        </tr>
+        <% if (payslip.deductions && payslip.deductions.length > 0) { %>
+          <% payslip.deductions.forEach(function (ded) { %>
+            <tr class="deduction-row">
+              <td colspan="3" class="muted"><%= ded.label %></td>
+              <td class="num font-mono text-danger">-<%= fmtMoney(ded.amount) %></td>
+            </tr>
+          <% }); %>
+          <tr class="summary-row total-row">
+            <td colspan="3"><strong><%= t('payslip.net') %></strong></td>
+            <td class="num font-mono text-success"><strong><%= fmtMoney(payslip.net) %></strong></td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="panel-header">
+    <h2><%= t('payslip.shiftTrace') %></h2>
+    <p class="muted"><%= t('payslip.shiftTraceHint') %></p>
+  </div>
+
+  <% if (monthShifts.length === 0) { %>
+    <p class="muted"><%= t('checkin.none') %></p>
+  <% } else { %>
+    <ul class="shift-list">
+      <% monthShifts.slice().reverse().forEach(function (shift) { %>
+        <li class="shift-item <%= shift.disputed ? 'is-disputed' : '' %>">
+          <div class="shift-main">
+            <span class="shift-date">
+              <%= new Date(shift.start).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }) %>
+            </span>
+            <span class="shift-times muted">
+              <%= new Date(shift.start).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) %>
+              –
+              <%= shift.end ? new Date(shift.end).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : t('checkin.now') %>
+            </span>
+            <span class="shift-total">
+              <strong><%= formatDuration(shift.minutes !== undefined ? shift.minutes : (shift.end ? Math.round((new Date(shift.end) - new Date(shift.start))/60000) - (shift.breakMinutes || 0) : 0)) %></strong>
+              <% if (shift.disputed) { %>
+                <span class="badge warning"><%= t('payslip.disputed') %></span>
+              <% } %>
+            </span>
+          </div>
+
+          <div class="shift-actions">
+            <% if (shift.end && !shift.disputed) { %>
+              <form method="post" action="/w/payslip/dispute" class="inline">
+                <input type="hidden" name="shiftId" value="<%= shift.id %>">
+                <button type="submit" class="ghost small danger-text" title="Flag discrepancy in hours or break deduction">
+                  <%= t('payslip.disputeShift') %>
+                </button>
+              </form>
+            <% } %>
+          </div>
+        </li>
+      <% }); %>
+    </ul>
+  <% } %>
+</section>
+
+<%- include('../partials/foot') %>

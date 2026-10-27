@@ -1,0 +1,203 @@
+<%- include('../partials/head', { title: title }) %>
+
+<section class="hello admin-hello">
+  <div class="hello-header">
+    <div>
+      <p class="eyebrow"><a href="/admin">← <%= t('common.back') %> to Dashboard</a> · <%= org.name %></p>
+      <h1><%= worker.name %></h1>
+      <p class="muted"><%= worker.role %> · Language: <%= worker.language.toUpperCase() %> · Rate: <%= fmtMoney(worker.hourlyRate) %>/h</p>
+    </div>
+    <div>
+      <span class="badge <%= risk.level %> large-badge">
+        <%= t('fatigue.' + risk.level) %> (<%= risk.score %>/100)
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- Fatigue & Risk Deep Dive -->
+<section class="panel <%= risk.level !== 'low' ? 'alert ' + risk.level : '' %>">
+  <h2>Fatigue & Overwork Analysis</h2>
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-label">Weekly Hours</span>
+      <strong class="stat-value"><%= fmtDuration(risk.weeklyMinutes) %></strong>
+      <span class="stat-hint">Cap: <%= industry.weeklyHourCap %>h</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Consecutive Days</span>
+      <strong class="stat-value"><%= risk.streak %> days</strong>
+      <span class="stat-hint">Max safe: <%= industry.maxConsecutiveDays %> days</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Min Rest Gap</span>
+      <strong class="stat-value"><%= risk.restHours !== null ? `${Math.round(risk.restHours * 10)/10}h` : 'N/A' %></strong>
+      <span class="stat-hint">Req: <%= industry.minRestGapHours %>h</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Longest Shift</span>
+      <strong class="stat-value"><%= fmtDuration(risk.longestShift) %></strong>
+      <span class="stat-hint">Safe limit: 11h</span>
+    </div>
+  </div>
+
+  <% if (risk.flags.length > 0) { %>
+    <div class="flags-box">
+      <h4>Identified Risk Signals:</h4>
+      <ul class="flags">
+        <% risk.flags.forEach(function (flag) { %>
+          <li>
+            <%= t('fatigue.' + flag.code, {
+              hours: flag.detail.minutes !== undefined ? fmtDuration(flag.detail.minutes) : flag.detail.hours,
+              cap: flag.detail.cap !== undefined ? fmtDuration(flag.detail.cap) : '',
+              minimum: flag.detail.minimum || '',
+              days: flag.detail.days || '',
+              rest: flag.detail.hours || ''
+            }) %>
+          </li>
+        <% }); %>
+      </ul>
+    </div>
+  <% } %>
+</section>
+
+<!-- Month Payslip Summary -->
+<section class="panel">
+  <div class="panel-header">
+    <h2>Current Month Payroll Summary</h2>
+    <span class="muted small"><%= payslip.periodLabel %></span>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-label">Regular Work</span>
+      <strong class="stat-value"><%= fmtDuration(payslip.regularMinutes) %></strong>
+      <span class="stat-hint"><%= fmtMoney(payslip.baseRate) %>/h</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Overtime</span>
+      <strong class="stat-value"><%= fmtDuration(payslip.overtimeMinutes) %></strong>
+      <span class="stat-hint"><%= fmtMoney(payslip.overtimeRate) %>/h (<%= payslip.overtimeMultiplier %>×)</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Deductions</span>
+      <strong class="stat-value text-danger">-<%= fmtMoney(payslip.deductionTotal) %></strong>
+      <span class="stat-hint"><%= payslip.deductions.map(d => d.label).join(', ') || 'None' %></span>
+    </div>
+    <div class="stat highlight">
+      <span class="stat-label">Net Payable</span>
+      <strong class="stat-value text-success"><%= fmtMoney(payslip.net) %></strong>
+      <span class="stat-hint">Gross: <%= fmtMoney(payslip.gross) %></span>
+    </div>
+  </div>
+
+  <% if (payslip.disputed.length > 0) { %>
+    <div class="alert warning">
+      <strong>⚠️ <%= payslip.disputed.length %> shift(s) are currently disputed by this worker.</strong>
+      <p class="small muted">Review these shifts in the register below before running payroll.</p>
+    </div>
+  <% } %>
+</section>
+
+<!-- Recent Attendance Records -->
+<section class="panel">
+  <h2><%= t('admin.attendanceHistory') %></h2>
+  <% if (!shifts || shifts.length === 0) { %>
+    <p class="muted">No shift records found.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Start</th>
+            <th scope="col">End</th>
+            <th scope="col">Duration</th>
+            <th scope="col">Break</th>
+            <th scope="col">Source</th>
+            <th scope="col" class="num">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% shifts.forEach(function (s) { 
+               const dur = s.end ? Math.max(0, Math.round((new Date(s.end) - new Date(s.start)) / 60000) - (s.breakMinutes || 0)) : 0;
+          %>
+            <tr class="<%= s.disputed ? 'row-disputed' : '' %>">
+              <td><strong><%= new Date(s.start).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }) %></strong></td>
+              <td><%= new Date(s.start).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) %></td>
+              <td><%= s.end ? new Date(s.end).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : 'In progress' %></td>
+              <td><%= s.end ? fmtDuration(dur) : '—' %></td>
+              <td><%= s.breakMinutes || 0 %>m</td>
+              <td><span class="badge neutral"><%= s.source %></span></td>
+              <td class="num">
+                <% if (s.disputed) { %>
+                  <span class="badge warning">Disputed</span>
+                <% } else if (!s.end) { %>
+                  <span class="badge info">Active</span>
+                <% } else { %>
+                  <span class="badge success">Settled</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<!-- Split Grid: Skills Passport and Cases -->
+<div class="split">
+  <section class="panel">
+    <h2><%= t('admin.skillsRecord') %></h2>
+    <% if (!skills || skills.length === 0) { %>
+      <p class="muted">No verified skills recorded.</p>
+    <% } else { %>
+      <ul class="skills-simple-list">
+        <% skills.forEach(function (sk) { %>
+          <li class="skill-simple-item">
+            <div>
+              <strong><%= sk.title %></strong>
+              <div class="muted small"><%= sk.issuer %> (<%= sk.year %>)</div>
+            </div>
+            <div>
+              <% if (sk.verified) { %>
+                <span class="badge success">✔ Verified</span>
+              <% } else { %>
+                <span class="badge neutral">Self-reported</span>
+              <% } %>
+            </div>
+          </li>
+        <% }); %>
+      </ul>
+    <% } %>
+  </section>
+
+  <section class="panel">
+    <h2><%= t('admin.caseHistory') %></h2>
+    <% if (!cases || cases.length === 0) { %>
+      <p class="muted">No cases filed by this worker.</p>
+    <% } else { %>
+      <div class="case-mini-list">
+        <% cases.forEach(function (c) { 
+             const status = effectiveStatus(c);
+        %>
+          <article class="case-card mini status-<%= status %>">
+            <div class="case-header">
+              <span class="badge <%= c.type === 'safety' ? 'danger' : 'info' %>"><%= c.type.toUpperCase() %></span>
+              <span class="badge <%= status === 'overdue' ? 'danger' : (status === 'resolved' ? 'success' : 'warning') %>">
+                <%= t('common.' + status) %>
+              </span>
+            </div>
+            <p class="case-text small"><strong><%= c.category %>:</strong> <%= c.text %></p>
+            <div class="case-meta small muted">
+              <%= new Date(c.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) %>
+            </div>
+          </article>
+        <% }); %>
+      </div>
+    <% } %>
+  </section>
+</div>
+
+<%- include('../partials/foot') %>
