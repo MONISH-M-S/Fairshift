@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="<%= locale %>">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %> · FairShift</title>
+  <meta name="description" content="FairShift keeps attendance, pay, safety and skills transparent for workers and employers.">
+  <meta name="theme-color" content="#0f3d2e">
+  <link rel="icon" href="/img/mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="<%= typeof bodyClass !== 'undefined' ? bodyClass : '' %>">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar">
+    <a class="brand" href="<%= session ? (session.role === 'admin' ? '/admin' : '/w') : '/' %>">
+      <img src="/img/mark.svg" alt="" width="28" height="28">
+      <span>FairShift</span>
+    </a>
+
+    <nav class="lang-switch" aria-label="<%= t('common.language') %>">
+      <% locals.locales.forEach(function (code) { %>
+        <a href="/lang/<%= code %>?next=<%= encodeURIComponent(path) %>"
+           lang="<%= code %>" hreflang="<%= code %>"
+           class="<%= code === locale ? 'is-active' : '' %>"
+           <%= code === locale ? 'aria-current="true"' : '' %>><%= localeNames[code] %></a>
+      <% }); %>
+    </nav>
+
+    <% if (session) { %>
+      <form method="post" action="/logout" class="inline">
+        <button type="submit" class="ghost small"><%= t('nav.logout') %></button>
+      </form>
+    <% } %>
+  </header>
+
+  <main id="main" class="page">

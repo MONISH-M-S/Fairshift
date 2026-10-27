@@ -1,0 +1,27 @@
+<%- include('partials/head', { title: title, bodyClass: 'auth' }) %>
+
+<section class="panel narrow">
+  <h1>Sign in to the demo</h1>
+  <p class="muted">
+    Pick any persona. This prototype uses demo sign-in so reviewers can move between a worker and
+    an employer in one click; production would place an identity provider behind the same session
+    layer.
+  </p>
+
+  <form method="post" action="/login" class="persona-list">
+    <% personas.forEach(function (persona) { %>
+      <button type="submit" name="persona" value="<%= persona.id %>" class="persona">
+        <span class="persona-role <%= persona.role %>"><%= persona.role === 'admin' ? 'Employer' : 'Worker' %></span>
+        <span class="persona-name"><%= persona.label %></span>
+        <span class="persona-detail"><%= persona.detail %></span>
+      </button>
+    <% }); %>
+  </form>
+
+  <p class="note">
+    Language can be changed at any time from the header. A worker's saved language is applied
+    automatically when they sign in.
+  </p>
+</section>
+
+<%- include('partials/foot') %>

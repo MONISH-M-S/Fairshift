@@ -1,0 +1,43 @@
+  </main>
+
+  <% if (session && session.role === 'worker') { %>
+    <nav class="tabbar" aria-label="Main">
+      <a href="/w" class="<%= path === '/w' ? 'is-active' : '' %>">
+        <span class="tab-icon" aria-hidden="true">⌂</span>
+        <span><%= t('nav.home') %></span>
+      </a>
+      <a href="/w/checkin" class="<%= path === '/w/checkin' ? 'is-active' : '' %>">
+        <span class="tab-icon" aria-hidden="true">⟳</span>
+        <span><%= t('nav.checkin') %></span>
+      </a>
+      <a href="/w/payslip" class="<%= path === '/w/payslip' ? 'is-active' : '' %>">
+        <span class="tab-icon" aria-hidden="true">₹</span>
+        <span><%= t('nav.payslip') %></span>
+      </a>
+      <a href="/w/report" class="<%= path === '/w/report' ? 'is-active' : '' %>">
+        <span class="tab-icon" aria-hidden="true">!</span>
+        <span><%= t('nav.report') %></span>
+      </a>
+    </nav>
+  <% } %>
+
+  <% if (session && session.role === 'admin') { %>
+    <nav class="tabbar" aria-label="Main">
+      <a href="/admin" class="<%= path === '/admin' ? 'is-active' : '' %>">
+        <span class="tab-icon" aria-hidden="true">▤</span>
+        <span><%= t('nav.dashboard') %></span>
+      </a>
+      <a href="/admin/cases" class="<%= path.startsWith('/admin/cases') ? 'is-active' : '' %>">
+        <span class="tab-icon" aria-hidden="true">⚑</span>
+        <span><%= t('nav.cases') %></span>
+      </a>
+    </nav>
+  <% } %>
+
+  <footer class="footer">
+    <p>FairShift · SDG 8 · prototype data, reset on redeploy</p>
+  </footer>
+
+  <script src="/js/app.js" defer></script>
+</body>
+</html>

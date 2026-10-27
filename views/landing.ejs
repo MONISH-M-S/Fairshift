@@ -1,0 +1,111 @@
+<%- include('partials/head', { title: title, bodyClass: 'landing' }) %>
+
+<section class="hero">
+  <p class="eyebrow">SDG 8 · Decent work</p>
+  <h1>Work records that workers can read, and employers can trust.</h1>
+  <p class="lede">
+    FairShift replaces the paper register, the wage spreadsheet and the WhatsApp complaint
+    thread with one shared record — attendance, pay, safety and skills — in the worker's own
+    language, on a basic phone.
+  </p>
+  <div class="hero-actions">
+    <a class="button primary" href="/login">Open the demo</a>
+    <a class="button" href="#how">How it works</a>
+  </div>
+  <ul class="hero-points">
+    <li>Works without JavaScript for every core action</li>
+    <li>English · हिंदी · தமிழ்</li>
+    <li>One app, two industries: construction and a college</li>
+  </ul>
+</section>
+
+<section class="panel" id="how">
+  <h2>The two problems</h2>
+  <div class="split">
+    <div>
+      <h3>Workers</h3>
+      <ul class="ticks">
+        <li>Salary is a number with no explanation</li>
+        <li>Overtime disappears from the register</li>
+        <li>Complaints risk being identified</li>
+        <li>Skills vanish when the job changes</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Employers</h3>
+      <ul class="ticks">
+        <li>No view of who is overworked</li>
+        <li>Problems surface only after they are serious</li>
+        <li>Safety issues stay invisible until an injury</li>
+        <li>No record of who is about to leave</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>What FairShift does</h2>
+  <div class="cards">
+    <article class="card">
+      <h3>Attendance &amp; overtime</h3>
+      <p>Check in with a site code. Hours and overtime are calculated at the moment of check-out, not guessed at month end.</p>
+    </article>
+    <article class="card">
+      <h3>Payslips you can trace</h3>
+      <p>Every rupee links back to the shifts that produced it. Workers can dispute a shift before payroll runs.</p>
+    </article>
+    <article class="card">
+      <h3>Safety &amp; grievances</h3>
+      <p>Report by voice or text, anonymously if needed. Each case carries a response deadline and a visible timeline.</p>
+    </article>
+    <article class="card">
+      <h3>Anonymous feedback</h3>
+      <p>Feedback is separated from identity at the point of submission, then grouped into themes for managers.</p>
+    </article>
+    <article class="card">
+      <h3>Fatigue alerts</h3>
+      <p>Long weeks, short rest gaps and too many consecutive days are flagged from the attendance record itself.</p>
+    </article>
+    <article class="card">
+      <h3>Skill passport</h3>
+      <p>Certifications travel with the worker to the next employer instead of resetting to zero.</p>
+    </article>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>One system, two industries</h2>
+  <div class="split">
+    <div class="industry">
+      <h3>Construction site</h3>
+      <p class="muted">Meridian Buildcon · Kilpauk Site 2</p>
+      <ul class="ticks">
+        <li>8-hour day, overtime at 1.5×</li>
+        <li>Scaffolding, machinery and heat hazards</li>
+        <li>Daily-wage workers, Tamil and Hindi</li>
+      </ul>
+    </div>
+    <div class="industry">
+      <h3>College</h3>
+      <p class="muted">Periyar Institute of Technology · Guindy Campus</p>
+      <ul class="ticks">
+        <li>40-hour week, overtime at 1.25×</li>
+        <li>Lab safety and harassment categories</li>
+        <li>Contract staff, provident fund deductions</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note">
+    Only the rule set and vocabulary change between the two. The attendance, payroll, case and
+    dashboard code is identical, which is what makes adding a third industry a configuration
+    change rather than a rebuild.
+  </p>
+</section>
+
+<section class="panel cta">
+  <h2>Try it from both sides</h2>
+  <p>Sign in as a worker to see the register, or as a supervisor to see what the same data reveals.</p>
+  <a class="button primary" href="/login">Choose a persona</a>
+</section>
+
+<%- include('partials/foot') %>

@@ -1,0 +1,68 @@
+<%- include('../partials/head', { title: title }) %>
+
+<section class="hello">
+  <h1><%= t('nav.checkin') %></h1>
+  <p class="muted"><%= org.name %> · <%= org.site %></p>
+</section>
+
+<% if (notice) { %>
+  <p class="notice" role="status"><%= t('notice.' + notice) %></p>
+<% } %>
+
+<% if (active) { %>
+  <section class="panel status is-on">
+    <p class="status-label"><%= t('checkin.onSince') %></p>
+    <p class="status-time">
+      <%= new Date(active.start).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) %>
+      · <%= fmtDuration(activeMinutes) %>
+    </p>
+    <form method="post" action="/w/checkout">
+      <button class="button primary wide" type="submit"><%= t('checkin.checkOut') %></button>
+    </form>
+  </section>
+<% } else { %>
+  <section class="panel">
+    <h2><%= t('checkin.heading') %></h2>
+    <p class="muted"><%= t('checkin.hint') %></p>
+    <form method="post" action="/w/checkin" class="stack">
+      <label for="siteCode"><%= t('checkin.siteCode') %></label>
+      <input id="siteCode" name="siteCode" inputmode="numeric" autocomplete="off"
+             pattern="[0-9]*" maxlength="6" required
+             aria-describedby="siteCodeHelp">
+      <p id="siteCodeHelp" class="help"><%= t('checkin.demoCode', { code: org.siteCode }) %></p>
+
+      <button class="button primary wide" type="submit"><%= t('checkin.checkIn') %></button>
+    </form>
+    <p class="note"><%= t('checkin.qrNote') %></p>
+  </section>
+<% } %>
+
+<section class="panel">
+  <h2><%= t('checkin.recent') %></h2>
+  <% if (recent.length === 0) { %>
+    <p class="muted"><%= t('checkin.none') %></p>
+  <% } else { %>
+    <ul class="shift-list">
+      <% recent.forEach(function (shift) { %>
+        <li>
+          <span class="shift-date">
+            <%= new Date(shift.start).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }) %>
+          </span>
+          <span class="shift-times">
+            <%= new Date(shift.start).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) %>
+            –
+            <%= shift.end ? new Date(shift.end).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : t('checkin.now') %>
+          </span>
+          <span class="shift-total">
+            <%= fmtDuration(shift.minutes) %>
+            <% if (shift.overtime > 0) { %>
+              <em class="badge ot"><%= t('checkin.otShort', { duration: fmtDuration(shift.overtime) }) %></em>
+            <% } %>
+          </span>
+        </li>
+      <% }); %>
+    </ul>
+  <% } %>
+</section>
+
+<%- include('../partials/foot') %>

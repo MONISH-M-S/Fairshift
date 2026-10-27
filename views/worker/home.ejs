@@ -1,0 +1,90 @@
+<%- include('../partials/head', { title: title }) %>
+
+<section class="hello">
+  <p class="eyebrow"><%= industry.name[locale] || industry.name.en %> · <%= org.site %></p>
+  <h1><%= t('worker.greeting') %>, <%= worker.name %></h1>
+  <p class="muted"><%= worker.role %> · <%= org.name %></p>
+</section>
+
+<section class="panel status <%= active ? 'is-on' : '' %>">
+  <% if (active) { %>
+    <p class="status-label"><%= t('worker.statusCheckedIn') %></p>
+    <p class="status-time">
+      <%= new Date(active.start).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) %>
+      · <strong><%= fmtDuration(activeMinutes) %></strong>
+    </p>
+    <form method="post" action="/w/checkout">
+      <button class="button primary wide" type="submit"><%= t('worker.checkOut') %></button>
+    </form>
+  <% } else { %>
+    <p class="status-label"><%= t('worker.statusOff') %></p>
+    <p class="muted"><%= t('worker.statusOffHint') %></p>
+    <a class="button primary wide" href="/w/checkin"><%= t('worker.checkInNow') %></a>
+  <% } %>
+</section>
+
+<section class="stats">
+  <div class="stat">
+    <span class="stat-label"><%= t('common.week') %></span>
+    <strong class="stat-value"><%= fmtDuration(weeklyMinutes) %></strong>
+    <span class="stat-hint"><%= t('worker.capHint', { cap: industry.weeklyHourCap }) %></span>
+  </div>
+  <div class="stat">
+    <span class="stat-label"><%= t('worker.weekOvertime') %></span>
+    <strong class="stat-value"><%= fmtDuration(weekly.overtimeMinutes) %></strong>
+    <span class="stat-hint"><%= t('worker.multiplierHint', { multiplier: industry.overtimeMultiplier }) %></span>
+  </div>
+  <div class="stat">
+    <span class="stat-label"><%= t('worker.openCases') %></span>
+    <strong class="stat-value"><%= openCases %></strong>
+    <span class="stat-hint"><a href="/w/report"><%= t('worker.viewReports') %></a></span>
+  </div>
+</section>
+
+<% if (risk.level !== 'low') { %>
+  <section class="panel alert <%= risk.level %>">
+    <h2><%= t('worker.fatigueTitle') %></h2>
+    <p class="badge-row">
+      <span class="badge <%= risk.level %>"><%= t('fatigue.' + risk.level) %></span>
+      <span class="muted"><%= t('worker.fatigueScore', { score: risk.score }) %></span>
+    </p>
+    <ul class="flags">
+      <% risk.flags.forEach(function (flag) { %>
+        <li>
+          <%= t('fatigue.' + flag.code, {
+            hours: flag.detail.minutes !== undefined ? fmtDuration(flag.detail.minutes) : flag.detail.hours,
+            cap: flag.detail.cap !== undefined ? fmtDuration(flag.detail.cap) : '',
+            minimum: flag.detail.minimum || '',
+            days: flag.detail.days || '',
+            rest: flag.detail.hours || ''
+          }) %>
+        </li>
+      <% }); %>
+    </ul>
+    <p class="note"><%= t('worker.fatigueNote') %></p>
+  </section>
+<% } %>
+
+<section class="quick">
+  <h2><%= t('worker.quickActions') %></h2>
+  <div class="quick-grid">
+    <a class="quick-item" href="/w/payslip">
+      <strong><%= t('nav.payslip') %></strong>
+      <span><%= t('worker.quickPayslip') %></span>
+    </a>
+    <a class="quick-item" href="/w/report">
+      <strong><%= t('nav.report') %></strong>
+      <span><%= t('worker.quickReport') %></span>
+    </a>
+    <a class="quick-item" href="/w/feedback">
+      <strong><%= t('nav.feedback') %></strong>
+      <span><%= t('worker.quickFeedback') %></span>
+    </a>
+    <a class="quick-item" href="/w/skills">
+      <strong><%= t('nav.skills') %></strong>
+      <span><%= t('worker.quickSkills') %></span>
+    </a>
+  </div>
+</section>
+
+<%- include('../partials/foot') %>
